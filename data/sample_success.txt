@@ -1,0 +1,4 @@
+# x = 5, y = 3, z = -2 (negative constant, a *, varying spacing)
+x + y + z = 6
+2y+5z=-4
+2*x + 5y - z = 27
