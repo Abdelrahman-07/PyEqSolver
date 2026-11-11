@@ -25,8 +25,7 @@ class GaussianSolver:
     def solve(self) -> dict[str, float]:
         """Solve the system and return {variable: value}.
 
-        For each column it picks a pivot row (swapping up the first row with a
-        non-zero entry), scales it so the pivot is 1, and subtracts multiples of
+        For each column it picks a pivot row makes the pivot 1, and subtracts multiples of
         it from every other row. The number of pivots found is the rank.
 
         Raises:
@@ -46,7 +45,7 @@ class GaussianSolver:
 
         rank = 0
         for column in range(num_var):
-            # find a pivot at or below row rank
+            # find a new pivot
             found = None
             for r in range(rank, equations):
                 if abs(augmented[r][column]) >= self.TOLERANCE:
@@ -62,13 +61,16 @@ class GaussianSolver:
             for c in range(column, num_var + 1):
                 augmented[rank][c] = augmented[rank][c] / pivot
 
-            # clear this column in every other row
+            # make the rest of column entries zero
             for r in range(equations):
                 if r != rank:
                     factor = augmented[r][column]
                     for c in range(column, num_var + 1):
                         augmented[r][c] = augmented[r][c] - (factor * augmented[rank][c])
             rank += 1
+
+
+
 
         # rows below the rank have all-zero coefficients, so each one reads 0 = c
         for row in augmented[rank:]:
