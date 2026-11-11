@@ -35,52 +35,53 @@ class GaussianSolver:
             InfiniteSolutionsException: Rank is smaller than the number of variables.
         """
         equations = len(self._matrix)
-        count = len(self._variables)
+        num_var = len(self._variables)
 
-        if equations < count:
-            raise DimensionMismatchException(f"{equations} equations for {count} variables ({', '.join(self._variables)})")
+        if equations < num_var:
+            raise DimensionMismatchException(f"{equations} equations for {num_var} variables")
 
         augmented = []
         for row in self._matrix:
-            augmented.append(row[:])  # work on a copy; the caller's data stays intact
+            augmented.append(row[:])  
 
         rank = 0
-        for column in range(count):
-            # find a pivot at or below row `rank`
+        for column in range(num_var):
+            # find a pivot at or below row rank
             found = None
             for r in range(rank, equations):
                 if abs(augmented[r][column]) >= self.TOLERANCE:
                     found = r
                     break
+
             if found is None:
-                continue  # no pivot in this column: rank deficiency
+                continue  
             augmented[rank], augmented[found] = augmented[found], augmented[rank]
 
             # scale the pivot row so the pivot becomes 1
             pivot = augmented[rank][column]
-            for c in range(column, count + 1):
-                augmented[rank][c] /= pivot
+            for c in range(column, num_var + 1):
+                augmented[rank][c] = augmented[rank][c] / pivot
 
             # clear this column in every other row
             for r in range(equations):
                 if r != rank:
                     factor = augmented[r][column]
-                    for c in range(column, count + 1):
-                        augmented[r][c] -= factor * augmented[rank][c]
+                    for c in range(column, num_var + 1):
+                        augmented[r][c] = augmented[r][c] - (factor * augmented[rank][c])
             rank += 1
 
         # rows below the rank have all-zero coefficients, so each one reads 0 = c
         for row in augmented[rank:]:
-            if abs(row[count]) >= self.TOLERANCE:
+            if abs(row[num_var]) >= self.TOLERANCE:
                 raise InconsistentSystemException("The system has no solution")
 
-        if rank < count:
+        if rank < num_var:
             raise InfiniteSolutionsException("Infinitely many solutions")
 
         # the left side is now the identity, so the last column holds the answers
         solution = {}
-        for i in range(count):
-            solution[self._variables[i]] = augmented[i][count]
+        for i in range(num_var):
+            solution[self._variables[i]] = augmented[i][num_var]
         return solution
     
     
